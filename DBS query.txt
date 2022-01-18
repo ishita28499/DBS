@@ -1,0 +1,70 @@
+TABLE CREATION
+==============
+create table album(
+    albumid varchar(10) primary key, 
+    title varchar(20), 
+    copyright date,
+    format varchar(10), 
+    noofsong varchar(10), 
+    ssn int(10), 
+    foreign key(ssn) references musician(ssn)
+);
+
+create table musician(
+    ssn int(10) primary key, 
+    name varchar(20),
+    contact varchar(20),
+    houseno varchar(20), 
+    streetname varchar(20), 
+    city varchar(10), 
+    state varchar(10)
+);
+
+create table instrument(
+    instid int(10) primary key, 
+    name varchar(20), 
+    instkey varchar(20)
+);
+
+create table play(
+    ssn int(10),
+    instid int(10), 
+    foreign key(ssn) references musician(ssn),
+    foreign key(instid) references instrument(instid),
+    primary key(ssn,instid)
+);
+
+create table song(
+    songid int(10) primary key, 
+    title varchar(20), 
+    author varchar(20), 
+    albumid varchar(10),
+    foreign key(albumid) references album(albumid)
+);
+
+create table perform(
+        ssn int(10), 
+	songid int(10), 
+        foreign key(ssn) references musician(ssn), 
+        foreign key(songid) references song(songid), 
+        primary key(ssn,songid)
+);
+
+
+1st query
+---------
+select m.name,s.title,a.albumid from musician m,perform p,song s,album a where m.ssn=p.ssn and p.songid=s.songid and s.albumid=a.albumid;
+
+2nd query
+---------
+1st way using join
+------------
+select * from musician m LEFT JOIN album a ON m.ssn = a.ssn where a.ssn is NULL;
+
+2nd way 
+-------
+select m.ssn,m.name from musician m where m.ssn not in(select m.ssn from musician m,album a where m.ssn=a.ssn);
+
+3rd query
+---------
+select s.songid,s.title from song s,perform p where s.songid=p.songid group by p.songid having count(p.songid)>=3;
